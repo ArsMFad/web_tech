@@ -1,6 +1,7 @@
 import copy
 
 from django.shortcuts import render
+from django.core.paginator import Paginator
 
 
 QUESTIONS = [
@@ -14,7 +15,10 @@ QUESTIONS = [
 
 
 def index(request):
-    return render(request, template_name='index.html', context={'questions': QUESTIONS})
+    page_num = int(request.GET.get('page', 1))
+    paginator = Paginator(QUESTIONS, 5)
+    page = paginator.page(page_num)
+    return render(request, template_name='index.html', context={'questions': page.object_list, 'page_obj': page})
 
 
 def hot(request):
