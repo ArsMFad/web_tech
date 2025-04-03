@@ -5,14 +5,11 @@
 
 
 <div class="d-flex align-items-center gap-2 mb-3">
-    <h1>New Question</h1>
-    <a href="{% url "hot" %}">Hot Questions</a>
+    <h1>{{ question.title }}</h1>
 </div>
 
 <article class="d-flex gap-3 flex-column">
-    {% for question in questions %}
-        {% include 'layouts/question.html' %}
-    {% endfor %}
+    {% include 'layouts/question.html' %}
 
     <nav aria-label="Page navigation">
         <ul class="pagination">

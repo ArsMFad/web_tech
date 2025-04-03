@@ -1,0 +1,37 @@
+
+{% load static %}
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-2">
+                <div style="height: 100px;" class="d-flex border mb-2 w-100 justify-content-center">
+                    <img src="{% static question.img_path %}" alt="Avatar" class="img-fluid rounded-start object-fit-contain h-100 w-auto">
+                </div>
+                <div>
+                    <input type="number" class="form-control" value="5">
+                </div>
+            </div>
+            <div class="col d-flex flex-column justify-content-between">
+                <div>
+                    <a href="{% url "question" question.id %}" style="font-size: 1.5em;" class="card-link">{{ question.title }}</a>
+                    <p class="card-text">{{ question.text }}</p>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <a href="">answers (3)</a>
+                    </div>
+                    <div class="col">
+                        <span>Tags:</span>
+                        <a href="">black-jack</a>
+                        <a href="">bender</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
