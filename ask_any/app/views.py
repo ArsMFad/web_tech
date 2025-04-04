@@ -2,7 +2,7 @@ import copy
 import random
 
 from django.shortcuts import render
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 possible_tags = ['perl', 'python', 'c']
 best_members_list = ['Mr.Freeman', 'Dr.House', 'Bender', 'Queen Victoria', 'V.Pupkin']
@@ -88,11 +88,26 @@ ANSWERS = [{
 
 ANSWERS_NULL = 'null'
 
+def paginate(objects_list, request, per_page=5):
+    page_num = int(request.GET.get('page', 1))
+    paginator = Paginator(objects_list, per_page)
+    try:
+        page = paginator.page(page_num)
+    except PageNotAnInteger:
+        page = paginator.page(1)
+    except EmptyPage:
+        page = paginator.page(paginator.num_pages)
+
+    return page
+
 
 def index(request):
-    page_num = int(request.GET.get('page', 1))
-    paginator = Paginator(QUESTIONS, 5)
-    page = paginator.page(page_num)
+    
+    #page_num = int(request.GET.get('page', 1))
+    #paginator = Paginator(QUESTIONS, 5)
+    #page = paginator.page(page_num)
+
+    page = paginate(QUESTIONS, request, 5)
     return render(request, template_name='index.html', context={
         'questions': page.object_list,
         'page_obj': page,
