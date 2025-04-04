@@ -25,8 +25,9 @@
                     </div>
                     <div class="col">
                         <span>Tags:</span>
-                        <a href="">black-jack</a>
-                        <a href="">bender</a>
+                        {% for tag in question.tags %}
+                            <a href="">{{ tag }} </a>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

@@ -1,0 +1,11 @@
+{% load static %}
+{% block content %}
+
+<h3>Popular tags</h3>
+<div>
+    {% for tag in popular_tags %}
+        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: {{ tag.color }}; font-size: {{ tag.font_size }};">{{ tag.title }}</a>    
+    {% endfor %}
+</div>
+
+{% endblock %}

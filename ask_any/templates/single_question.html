@@ -10,8 +10,22 @@
 
 <article class="d-flex gap-3 flex-column">
     {% include 'layouts/question.html' %}
-
-    {% include 'layouts/pagination.html' %}
 </article>
+
+<hr>
+<article class="d-flex gap-3 flex-column">
+        {% include 'layouts/answers.html' %}
+</article>
+<hr>
+
+<form class="d-flex flex-column gap-2 form-inline">
+    <div class="d-flex gap-4">
+        <div class="w-100">
+            <textarea style="height: 150px;" type="text" class="form-control w-100" placeholder="Input text" aria-label="Input text" aria-describedby="basic-addon2"></textarea>
+        </div>
+        
+    </div>
+    <button class="btn btn-outline-success" type="submit">Answer</button>
+</form>
 
 {% endblock %}

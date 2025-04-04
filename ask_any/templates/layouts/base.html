@@ -13,26 +13,37 @@
 <body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container">
-            <a class="navbar-brand" href="#">AskAny</a>
+            <a class="navbar-brand" href="/">AskAny</a>
 
             <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success" type="submit">Ask</button>
             </form>
 
-            <div class="d-flex gap-2 align-items-center">
-                <div>
-                    <img src="{% static "/img/cacodemon.jpg" %}" width="50" height="50" class="img-thumbnail" alt="Avatar">
-                </div>
-                <div class="content">
-                    <div class="content__name">Dr. Pepper</div>
-                    <div class="content__links">
-                        <a href="#">Settings</a>
-                        <a href="#">Log out</a>
+            {% if user.is_logged %}
+                <div class="d-flex gap-2 align-items-center">
+                    <div>
+                        <img src="{% static "/img/cacodemon.jpg" %}" width="50" height="50" class="img-thumbnail" alt="Avatar">
+                    </div>
+                    <div class="content">
+                        <div class="content__name">Dr. Pepper</div>
+                        <div class="content__links">
+                            <a href="/settings">Settings</a>
+                            <a href="#">Log out</a>
+                        </div>
                     </div>
                 </div>
+            {% else %}
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="content">
+                        <div class="content__links">
+                            <a href="#">log in</a>
+                            <a href="/registration">register</a>
+                        </div>
+                    </div>
 
-            </div>
+                </div>
+            {% endif %}
 
         </div>
     </nav>
@@ -45,28 +56,11 @@
             </section>
             <aside class="col-3">
                 <section class="mb-3">
-                    <h3>Popular tags</h3>
-                    <div>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: black; font-size: 0.83em;">perl</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: red; font-size: 1.53em;">python</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: black; font-size: 1.2em;">TechnoPark</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: red; font-size: 1.53em;">MySQL</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: rgb(89, 134, 5); font-size: 1.2em;">django</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: black; font-size: 1.2em;">Mail.Ru</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: black; font-size: 1.2em;">Voloshin</a>
-                        <a href="#" class="badge link-underline link-underline-opacity-0" style="color: rgb(224, 117, 45); font-size: 1.2em;">Firefox</a>
-                    </div>
+                    {% include "layouts/popular_tags.html" %}
                 </section>
 
                 <section>
-                    <h3>Best members</h3>
-                    <div class="d-flex flex-column gap-3">
-                        <a class="d-block" href="">Mr. Freeman</a>
-                        <a class="d-block" href="">Dr. House</a>
-                        <a class="d-block" href="">Bender</a>
-                        <a class="d-block" href="">Queen Victoria</a>
-                        <a class="d-block" href="">V. Pupkin</a>
-                    </div>
+                    {% include "layouts/best_members.html" %}
                 </section>
             </aside>
         </div>
