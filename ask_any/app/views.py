@@ -102,12 +102,8 @@ def paginate(objects_list, request, per_page=5):
 
 
 def index(request):
-    
-    #page_num = int(request.GET.get('page', 1))
-    #paginator = Paginator(QUESTIONS, 5)
-    #page = paginator.page(page_num)
-
     page = paginate(QUESTIONS, request, 5)
+
     return render(request, template_name='index.html', context={
         'questions': page.object_list,
         'page_obj': page,
@@ -127,9 +123,8 @@ def hot(request):
 
 
 def question(request, question_id):
-    page_num = int(request.GET.get('page', 1))
-    paginator = Paginator(ANSWERS, 5)
-    page = paginator.page(page_num)
+    page = paginate(ANSWERS, request, 5)
+
     return render(request, template_name='single_question.html', context={
         'question': QUESTIONS[question_id],
         'popular_tags': POPULAR_TAGS,
@@ -169,10 +164,8 @@ def ask(request):
 
 def tag(request, tag_title):
     DATA_ARRAY = [i for i in QUESTIONS if tag_title in i['tags']]
-    print(DATA_ARRAY)
-    page_num = int(request.GET.get('page', 1))
-    paginator = Paginator(DATA_ARRAY, 5)
-    page = paginator.page(page_num)
+    page = paginate([i for i in QUESTIONS if tag_title in i['tags']], request, 5)
+    
     return render(request, template_name='tag.html', context={
         'questions': DATA_ARRAY,
         'popular_tags': POPULAR_TAGS,
