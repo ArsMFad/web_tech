@@ -28,7 +28,7 @@
                     <div class="content">
                         <div class="content__name">Dr. Pepper</div>
                         <div class="content__links">
-                            <a href="/settings">Settings</a>
+                            <a href="{% url 'settings' %}">Settings</a>
                             <a href="#">Log out</a>
                         </div>
                     </div>
@@ -37,8 +37,8 @@
                 <div class="d-flex gap-2 align-items-center">
                     <div class="content">
                         <div class="content__links">
-                            <a href="#">log in</a>
-                            <a href="/registration">register</a>
+                            <a href="{% url 'login' %}">log in</a>
+                            <a href="{% url 'registration' %}">register</a>
                         </div>
                     </div>
 

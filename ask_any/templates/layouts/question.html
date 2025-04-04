@@ -15,18 +15,18 @@
             </div>
             <div class="col d-flex flex-column justify-content-between">
                 <div>
-                    <a href="{% url "question" question.id %}" style="font-size: 1.5em;" class="card-link">{{ question.title }}</a>
+                    <a href="{% url 'question' question.id %}" style="font-size: 1.5em;" class="card-link">{{ question.title }}</a>
                     <p class="card-text">{{ question.text }}</p>
                 </div>
 
                 <div class="row">
                     <div class="col">
-                        <a href="">answers (3)</a>
+                        <a href="{% url 'question' question.id %}">answers (3)</a>
                     </div>
                     <div class="col">
                         <span>Tags:</span>
                         {% for tag in question.tags %}
-                            <a href="">{{ tag }} </a>
+                            <a href="{% url 'tag' tag %}">{{ tag }} </a>
                         {% endfor %}
                     </div>
                 </div>
