@@ -133,3 +133,11 @@ def tag(request, tag_title):
         'user': LOGGED_IN_USER,
         'tag': tag_title
         })
+
+
+def page_not_found_view(request, exception):
+    return render(request, template_name='404.html', status=404, context = {
+        'popular_tags': get_popular_tags(),
+        'best_members': get_best_members(),
+        'user': LOGGED_IN_USER,
+    })

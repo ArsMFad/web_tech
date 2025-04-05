@@ -33,3 +33,5 @@ urlpatterns = [
     path('tag/<str:tag_title>', views.tag, name='tag'),
     path('uploads/<path:path>', serve, {'document_root': settings.BASE_DIR / 'uploads'})
 ] 
+
+handler404 = "app.views.page_not_found_view"
