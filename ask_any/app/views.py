@@ -3,6 +3,7 @@ import random
 
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from . import models
 
 possible_tags = ['perl', 'python', 'c']
 best_members_list = ['Mr.Freeman', 'Dr.House', 'Bender', 'Queen Victoria', 'V.Pupkin']
@@ -65,6 +66,7 @@ def count_best_members():
 
 QUESTIONS = count_questions()
 
+
 POPULAR_TAGS = count_popular_tags()
 
 BEST_MEMBERS = count_best_members()
@@ -102,7 +104,7 @@ def paginate(objects_list, request, per_page=5):
 
 
 def index(request):
-    page = paginate(QUESTIONS, request, 5)
+    page = paginate(models.Question.objects.all(), request, 5)
 
     return render(request, template_name='index.html', context={
         'questions': page.object_list,
@@ -165,7 +167,7 @@ def ask(request):
 def tag(request, tag_title):
     DATA_ARRAY = [i for i in QUESTIONS if tag_title in i['tags']]
     page = paginate([i for i in QUESTIONS if tag_title in i['tags']], request, 5)
-    
+
     return render(request, template_name='tag.html', context={
         'questions': DATA_ARRAY,
         'popular_tags': POPULAR_TAGS,

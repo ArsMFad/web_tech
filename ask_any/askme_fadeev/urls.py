@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.views.static import serve
+from django.conf import settings
 
 from app import views
 
@@ -28,5 +30,6 @@ urlpatterns = [
     path('signup/', views.registration, name='registration'),
     path('login/', views.login, name='login'),
     path('ask/', views.ask, name='ask'),
-    path('tag/<str:tag_title>', views.tag, name='tag')
-]
+    path('tag/<str:tag_title>', views.tag, name='tag'),
+    path('uploads/<path:path>', serve, {'document_root': settings.BASE_DIR / 'uploads'})
+] 
