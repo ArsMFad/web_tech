@@ -5,7 +5,7 @@
 
 
 <div class="d-flex align-items-center gap-2 mb-3">
-    <h1>{{ question.title }}</h1>
+    <h1><a href="{% url 'question' question.id %}" class="text-decoration-none" style="color: black;">{{ question.title }}</a></h1>
 </div>
 
 <article class="d-flex gap-3 flex-column">

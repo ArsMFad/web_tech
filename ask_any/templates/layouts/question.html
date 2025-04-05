@@ -1,5 +1,5 @@
 
-{% load static %}
+
 {% block content %}
 
 <div class="card">
@@ -10,7 +10,7 @@
                     <img src="{{ question.author.avatar_url }}" alt="Avatar" class="img-fluid rounded-start object-fit-contain h-100 w-auto">
                 </div>
                 <div>
-                    <input type="number" class="form-control" value="5">
+                    <input type="number" class="form-control" value="{{ question.rating }}">
                 </div>
             </div>
             <div class="col d-flex flex-column justify-content-between">
@@ -20,13 +20,13 @@
                 </div>
 
                 <div class="row">
-                    <div class="col">
-                        <a href="{% url 'question' question.id %}">answers (3)</a>
+                    <div class="col mr-10">
+                        <a href="{% url 'question' question.id %}">answers ({{ question.count_of_answers }})</a>
                     </div>
                     <div class="col">
                         <span>Tags:</span>
-                        {% for tag in question.tags %}
-                            <a href="{% url 'tag' tag %}">{{ tag }} </a>
+                        {% for tag in question.tags.all %}
+                            <a href="{% url 'tag' tag.title %}">{{ tag.title }} </a>
                         {% endfor %}
                     </div>
                 </div>
