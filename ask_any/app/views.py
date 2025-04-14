@@ -1,9 +1,11 @@
 import copy
 import random
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from . import models
+from django.http import Http404
+
 
 possible_tags = ['perl', 'python', 'c']
 best_members_list = ['Mr.Freeman', 'Dr.House', 'Bender', 'Queen Victoria', 'V.Pupkin']
@@ -91,16 +93,29 @@ ANSWERS = [{
 ANSWERS_NULL = 'null'
 
 def paginate(objects_list, request, per_page=5):
-    page_num = int(request.GET.get('page', 1))
-    paginator = Paginator(objects_list, per_page)
     try:
-        page = paginator.page(page_num)
-    except PageNotAnInteger:
-        page = paginator.page(1)
-    except EmptyPage:
-        page = paginator.page(paginator.num_pages)
+        if not objects_list or not hasattr(objects_list, '__len__'):
+            raise Http404("Pagination error")
+        
+        paginator = Paginator(objects_list, per_page)
+        
+        try:
+            page_num = int(request.GET.get('page', 1))
+        except (ValueError, TypeError):
+            page_num = 1
+        
+        try:
+            page = paginator.page(page_num)
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+            
+        return page
+        
+    except Exception as e:
+        raise Http404("Pagination error")
 
-    return page
 
 
 def index(request):
