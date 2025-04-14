@@ -27,16 +27,28 @@ ANSWERS = [{
 ANSWERS_NULL = 'null'
 
 def paginate(objects_list, request, per_page=5):
-    page_num = int(request.GET.get('page', 1))
-    paginator = Paginator(objects_list, per_page)
     try:
-        page = paginator.page(page_num)
-    except PageNotAnInteger:
-        page = paginator.page(1)
-    except EmptyPage:
-        page = paginator.page(paginator.num_pages)
-
-    return page
+        if not objects_list or not hasattr(objects_list, '__len__'):
+            raise Http404("Pagination error")
+        
+        paginator = Paginator(objects_list, per_page)
+        
+        try:
+            page_num = int(request.GET.get('page', 1))
+        except (ValueError, TypeError):
+            page_num = 1
+        
+        try:
+            page = paginator.page(page_num)
+        except PageNotAnInteger:
+            page = paginator.page(1)
+        except EmptyPage:
+            page = paginator.page(paginator.num_pages)
+            
+        return page
+        
+    except Exception as e:
+        raise Http404("Pagination error")
 
 def get_popular_tags():
     return models.Tag.objects.annotate(
