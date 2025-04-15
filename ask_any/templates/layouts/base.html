@@ -15,10 +15,14 @@
         <div class="container">
             <a class="navbar-brand" href="/">AskAny</a>
 
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Ask</button>
-            </form>
+            <div class="d-flex gap-3">
+                <form role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                </form>
+                <form action="{% url 'ask' %}">
+                    <button class="btn btn-outline-success" type="submit">Ask</button>
+                </form>
+            </div>
 
             {% if user.is_logged %}
                 <div class="d-flex gap-2 align-items-center">

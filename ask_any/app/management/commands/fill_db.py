@@ -4,7 +4,8 @@ from django.core.management.base import BaseCommand
 from django.core.files import File
 from faker import Faker
 from django.db.models import Count, Sum
-from app.models import User, Question, Answer, Tag
+from django.contrib.auth.models import User
+from django.apps import apps
 
 fake = Faker()
 
@@ -16,6 +17,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         ratio = options['ratio']
+        Tag = apps.get_model('app', 'Tag')
+        Profile = apps.get_model('app', 'Profile')
+        Question = apps.get_model('app', 'Question')
+        Answer = apps.get_model('app', 'Answer')
+
         self.stdout.write(f'Generating data with ratio={ratio}...')
 
         avatars = [
@@ -43,20 +49,28 @@ class Command(BaseCommand):
         print(f'Created {len(tags)} tags')
 
         users = []
+        profiles = []
         for _ in range(ratio):
-            user = User.objects.create(
-                name=fake.user_name()[:32],
-                rating=random.randint(-100, 500)
+            user = User.objects.create_user(
+                username=fake.unique.user_name()[:30],
+                email=fake.email(),
+                password='testpass123',
+                first_name=fake.first_name(),
+                last_name=fake.last_name()
             )
-
+            users.append(user)
+            
+            profile = user.profile
+            profile.rating = random.randint(-100, 500)
+            
             avatar_name = random.choice(avatars)
             avatar_path = os.path.join('uploads', avatar_name)
             if os.path.exists(avatar_path):
                 with open(avatar_path, 'rb') as f:
-                    user.avatar.save(avatar_name, File(f))
-            users.append(user)
-        print(f'Created {len(users)} users')
-
+                    profile.avatar.save(avatar_name, File(f))
+            
+            profiles.append(profile)
+        print(f'Created {len(profiles)} profiles')
 
         questions = []
         for _ in range(ratio * 10):
@@ -70,7 +84,6 @@ class Command(BaseCommand):
             questions.append(question)
         print(f'Created {len(questions)} questions')
 
-
         answers = []
         for _ in range(ratio * 100):
             answer = Answer.objects.create(
@@ -83,7 +96,6 @@ class Command(BaseCommand):
             answers.append(answer)
         print(f'Created {len(answers)} answers')
 
-
         questions = Question.objects.annotate(
             answers_count=Count('answer')
         ).all()
@@ -93,16 +105,16 @@ class Command(BaseCommand):
 
         Question.objects.bulk_update(questions, ['count_of_answers'])
 
-        for user in users:
-            user.rating = (
-                user.question_set.aggregate(Sum('rating'))['rating__sum'] +
-                user.answer_set.aggregate(Sum('rating'))['rating__sum']
-            ) or 0
-            user.save()
+        for profile in profiles:
+            question_rating = profile.user.question_set.aggregate(Sum('rating'))['rating__sum'] or 0
+            answer_rating = profile.user.answer_set.aggregate(Sum('rating'))['rating__sum'] or 0
+            profile.rating = question_rating + answer_rating
+            profile.save()
 
         print(
             f'Successfully populated database with:\n'
             f'- {len(users)} users\n'
+            f'- {len(profiles)} profiles\n'
             f'- {len(tags)} tags\n'
             f'- {len(questions)} questions\n'
             f'- {len(answers)} answers'

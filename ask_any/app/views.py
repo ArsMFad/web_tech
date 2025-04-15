@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from . import models
 from django.db.models import Count
+from django.http import Http404
 
 
 LOGGED_IN_USER = {
@@ -29,7 +30,7 @@ ANSWERS_NULL = 'null'
 def paginate(objects_list, request, per_page=5):
     try:
         if not objects_list or not hasattr(objects_list, '__len__'):
-            raise Http404("Pagination error")
+            raise Http404("Pagination errqor")
         
         paginator = Paginator(objects_list, per_page)
         
@@ -48,39 +49,34 @@ def paginate(objects_list, request, per_page=5):
         return page
         
     except Exception as e:
-        raise Http404("Pagination error")
-
-def get_popular_tags():
-    return models.Tag.objects.annotate(
-        num_questions=Count('question')
-    ).order_by('-num_questions')[:10]
-
-
-def get_best_members():
-    return models.User.objects.all().order_by('-rating')[:5]
+        print("as")
+        print(e)
+        print("as")
+        raise Http404("Pagination erroqr")
 
 
 def index(request):
-    page = paginate(models.Question.objects.all(), request, 5)
+    questions = models.Question.get_index_questions()
+    page = paginate(questions, request, 5)
 
     return render(request, template_name='index.html', context={
         'questions': page.object_list,
         'page_obj': page,
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER,
         })
 
 
 def hot(request):
-    questions = models.Question.objects.all().order_by('-rating')[:20]
+    questions = models.Question.get_hot_questions()
     page = paginate(questions, request, 5)
 
     return render(request, template_name='hot.html', context={
         'questions': page.object_list,
         'page_obj': page,
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER,
         })
 
@@ -92,40 +88,40 @@ def question(request, question_id):
         'question': models.Question.objects.get(pk=question_id),
         'answers': page.object_list,
         'page_obj': page,
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER,
         })
 
 
 def settings(request):
     return render(request, template_name='settings.html', context={
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER
         })
 
 
 def registration(request):
     return render(request, template_name='registration.html', context={
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_OUT_USER
         })
 
 
 def login(request):
     return render(request, template_name='login.html', context={
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_OUT_USER
         })
 
 
 def ask(request):
     return render(request, template_name='ask.html', context={
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER
         })
 
@@ -140,8 +136,8 @@ def tag(request, tag_title):
     return render(request, template_name='tag.html', context={
         'questions': page.object_list,
         'page_obj': page,
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER,
         'tag': tag_title
         })
@@ -149,7 +145,7 @@ def tag(request, tag_title):
 
 def page_not_found_view(request, exception):
     return render(request, template_name='404.html', status=404, context = {
-        'popular_tags': get_popular_tags(),
-        'best_members': get_best_members(),
+        'popular_tags': models.Tag.get_popular_tags(),
+        'best_members': models.Profile.get_best_members(),
         'user': LOGGED_IN_USER,
     })
