@@ -24,16 +24,16 @@
                 </form>
             </div>
 
-            {% if user.is_logged %}
+            {% if user.is_authenticated %}
                 <div class="d-flex gap-2 align-items-center">
                     <div>
-                        <img src="{% static "/img/cacodemon.jpg" %}" width="50" height="50" class="img-thumbnail" alt="Avatar">
+                        <img src="{{ user.profile.avatar_url }}" width="50" height="50" class="img-thumbnail" alt="Avatar">
                     </div>
                     <div class="content">
-                        <div class="content__name">Dr. Pepper</div>
+                        <div class="content__name">{{ user.username }}</div>
                         <div class="content__links">
                             <a href="{% url 'settings' %}">Settings</a>
-                            <a href="#">Log out</a>
+                            <a href="{% url 'logout' %}">Log out</a>
                         </div>
                     </div>
                 </div>
@@ -45,7 +45,6 @@
                             <a href="{% url 'registration' %}">register</a>
                         </div>
                     </div>
-
                 </div>
             {% endif %}
 

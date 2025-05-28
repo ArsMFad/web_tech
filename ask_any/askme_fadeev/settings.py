@@ -134,3 +134,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/uploads/' 
 MEDIA_ROOT = BASE_DIR / 'uploads'
+
+# Добавьте в конец settings.py
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

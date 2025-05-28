@@ -1,43 +1,24 @@
-import copy
-import random
-
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import Http404, HttpResponseRedirect
+from django.urls import reverse
 from . import models
-from django.db.models import Count
-from django.http import Http404
+from .forms import LoginForm, SignUpForm, AskForm, AnswerForm, SettingsForm
 
-
-LOGGED_IN_USER = {
-    'name': 'Dr.Pepper',
-    'avatar': '/img/cacodemon.jpg',
-    'is_logged': 1
-}
-
-LOGGED_OUT_USER = {
-    'name': 'null',
-    'avatar': 'null',
-    'is_logged': 0
-}
-
-ANSWERS = [{
-    'text': f'Title({i}) First of all I would like to thank you for the invitation to participate in such a... Russia is the huge territory which in many respects needs to be render habitable.',
-} for i in range(30)
-]
-
-ANSWERS_NULL = 'null'
 
 def paginate(objects_list, request, per_page=5):
     try:
-        if not objects_list or not hasattr(objects_list, '__len__'):
-            raise Http404("Pagination errqor")
+        if objects_list is None or not hasattr(objects_list, '__len__'):
+            raise ValueError("Invalid objects list for pagination")
+        
+        if len(objects_list) == 0:
+            paginator = Paginator([], per_page)
+            return paginator.page(1)
         
         paginator = Paginator(objects_list, per_page)
-        
-        try:
-            page_num = int(request.GET.get('page', 1))
-        except (ValueError, TypeError):
-            page_num = 1
+        page_num = request.GET.get('page', 1)
         
         try:
             page = paginator.page(page_num)
@@ -47,105 +28,157 @@ def paginate(objects_list, request, per_page=5):
             page = paginator.page(paginator.num_pages)
             
         return page
-        
     except Exception as e:
-        print("as")
-        print(e)
-        print("as")
-        raise Http404("Pagination erroqr")
+        raise Http404(f"Pagination error: {str(e)}")
 
 
 def index(request):
     questions = models.Question.get_index_questions()
     page = paginate(questions, request, 5)
-
-    return render(request, template_name='index.html', context={
+    return render(request, 'index.html', {
         'questions': page.object_list,
         'page_obj': page,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER,
-        })
+    })
 
 
 def hot(request):
     questions = models.Question.get_hot_questions()
     page = paginate(questions, request, 5)
-
-    return render(request, template_name='hot.html', context={
+    return render(request, 'hot.html', {
         'questions': page.object_list,
         'page_obj': page,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER,
-        })
+    })
 
 
 def question(request, question_id):
-    page = paginate(models.Answer.objects.all(), request, 5)
-
-    return render(request, template_name='single_question.html', context={
-        'question': models.Question.objects.get(pk=question_id),
+    question_obj = models.Question.objects.get(pk=question_id)
+    
+    if request.method == 'POST':
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.author = request.user
+            answer.question = question_obj
+            answer.save()
+            return HttpResponseRedirect(f"{reverse('question', args=[question_id])}?answer={answer.id}")
+    else:
+        form = AnswerForm()
+    
+    answers = models.Answer.objects.filter(question=question_obj)
+    print(answers)
+    page = paginate(answers, request, 5)
+    print(page)
+    
+    return render(request, 'single_question.html', {
+        'question': question_obj,
         'answers': page.object_list,
         'page_obj': page,
+        'form': form,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER,
-        })
+    })
 
 
+@login_required
 def settings(request):
-    return render(request, template_name='settings.html', context={
-        'popular_tags': models.Tag.get_popular_tags(),
-        'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER
-        })
+    if request.method == 'POST':
+        form = SettingsForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('settings')
+    else:
+        form = SettingsForm(instance=request.user)
+    
+    return render(request, 'settings.html', {'form': form})
 
 
 def registration(request):
-    return render(request, template_name='registration.html', context={
+    if request.method == 'POST':
+        form = SignUpForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect('index')
+    else:
+        form = SignUpForm()
+    
+    return render(request, 'registration.html', {
+        'form': form,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_OUT_USER
-        })
+    })
 
 
 def login(request):
-    return render(request, template_name='login.html', context={
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request, user)
+            next_url = request.GET.get('next', 'index')
+            return redirect(next_url)
+    else:
+        form = LoginForm()
+    
+    return render(request, 'login.html', {
+        'form': form,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_OUT_USER
-        })
+    })
 
 
+@login_required
+def logout(request):
+    auth_logout(request)
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+
+@login_required
 def ask(request):
-    return render(request, template_name='ask.html', context={
+    if request.method == 'POST':
+        form = AskForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.author = request.user
+            question.save()
+            
+            tags = form.cleaned_data['tags'].split(',')
+            for tag_name in tags:
+                tag_name = tag_name.strip()
+                if tag_name:
+                    tag, created = models.Tag.objects.get_or_create(title=tag_name)
+                    question.tags.add(tag)
+            
+            return redirect('question', question_id=question.id)
+    else:
+        form = AskForm()
+    
+    return render(request, 'ask.html', {
+        'form': form,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER
-        })
+    })
 
 
 def tag(request, tag_title):
     questions = models.Question.objects.filter(tags__title=tag_title).distinct()
-
-    paginator = Paginator(questions, 5)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-
-    return render(request, template_name='tag.html', context={
+    page = paginate(questions, request, 5)
+    
+    return render(request, 'tag.html', {
         'questions': page.object_list,
         'page_obj': page,
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER,
-        'tag': tag_title
-        })
+        'tag': tag_title,
+    })
 
 
 def page_not_found_view(request, exception):
-    return render(request, template_name='404.html', status=404, context = {
+    return render(request, '404.html', status=404, context={
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
-        'user': LOGGED_IN_USER,
     })

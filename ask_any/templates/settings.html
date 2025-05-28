@@ -7,30 +7,42 @@
 <section class="d-flex flex-column gap-4">
 
     <div class="d-flex align-items-center gap-2">
-        <h1>Settings: Dr.Pepper</h1>
+        <h1>Settings: {{ user.username }}</h1>
     </div>
 
-    <form class="d-flex flex-column gap-3">
+    <form method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Login</h4>
-            <input type="text" class="form-control flex-grow-1" placeholder="Enter login" value="dr_pepper">
+            {{ form.username }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Email</h4>
-            <input type="text" class="form-control flex-grow-1" placeholder="Enter email" value="dr.pepper@mail.ru">
+            {{ form.email }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Nickname</h4>
-            <input type="text" class="form-control flex-grow-1" placeholder="Enter nickname" value="Dr.Pepper">
+            <input type="text" class="form-control flex-grow-1" placeholder="Enter nickname" value="{{ user.profile.user.username }}" disabled>
         </div>
 
         <div class="d-flex gap-4">
             <h4 class="w-50 mb-0">Upload Avatar</h4>
             <div class="d-flex flex-column w-100">
-                <img src="#" alt="Avatar">
-                <input class="form-control w-50" type="file" id="formFile">
+                <img src="{{ user.profile.avatar_url }}" width="100" height="100" class="img-thumbnail mb-2" alt="Avatar">
+                {{ form.avatar }}
             </div>
         </div>
         

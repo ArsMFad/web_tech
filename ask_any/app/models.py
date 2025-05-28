@@ -6,7 +6,7 @@ from django.db.models import Count
 
 class Tag(models.Model):
     title = models.CharField(max_length=16)
-    importance = models.IntegerField()
+    importance = models.IntegerField(default=0)
     color = models.CharField(max_length=16)
     font_size = models.CharField(max_length=8)
 
@@ -36,7 +36,7 @@ class Profile(models.Model):
     @property
     def avatar_url(self):
         if self.avatar:
-            return f"/{self.avatar.name}"
+            return self.avatar.url
         return None
     
     def __str__(self):

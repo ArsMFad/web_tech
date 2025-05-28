@@ -1,31 +1,28 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-{% block content%}
-
-
-<div class="d-flex align-items-center gap-2 mb-3">
-    <h1><a href="{% url 'question' question.id %}" class="text-decoration-none" style="color: black;">{{ question.title }}</a></h1>
-</div>
-
-<article class="d-flex gap-3 flex-column">
-    {% include 'layouts/question.html' %}
-</article>
-
-<hr>
-<article class="d-flex gap-3 flex-column">
-        {% include 'layouts/answers.html' %}
-</article>
-<hr>
-
-<form class="d-flex flex-column gap-2 form-inline">
-    <div class="d-flex gap-4">
-        <div class="w-100">
-            <textarea style="height: 150px;" type="text" class="form-control w-100" placeholder="Input text" aria-label="Input text" aria-describedby="basic-addon2"></textarea>
-        </div>
-        
+{% block content %}
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <h1><a href="{% url 'question' question.id %}" class="text-decoration-none" style="color: black;">{{ question.title }}</a></h1>
     </div>
-    <button class="btn btn-outline-success" type="submit">Answer</button>
-</form>
 
+    <article class="d-flex gap-3 flex-column">
+        {% include 'layouts/question.html' %}
+    </article>
+
+    <hr>
+    <article class="d-flex gap-3 flex-column">
+        {% include 'layouts/answers.html' %}
+    </article>
+    <hr>
+
+    <form method="post" class="d-flex flex-column gap-2 form-inline">
+        {% csrf_token %}
+        <div class="d-flex gap-4">
+            <div class="w-100">
+                {{ form.text }}
+            </div>
+        </div>
+        <button class="btn btn-outline-success" type="submit">Answer</button>
+    </form>
 {% endblock %}

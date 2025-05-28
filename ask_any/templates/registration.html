@@ -1,46 +1,54 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-{% block content%}
-
+{% block content %}
 <section class="d-flex flex-column gap-4">
     <div class="d-flex align-items-center gap-2">
         <h1>Registration</h1>
     </div>
 
+    {% if form.errors %}
     <div class="mb-3">
-        <h5 class="text-danger mb-0">Sorry, this email address is already registered</h5>
+        <h5 class="text-danger mb-0">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    {{ error }}<br>
+                {% endfor %}
+            {% endfor %}
+        </h5>
     </div>
+    {% endif %}
 
-    <form class="d-flex flex-column gap-3">
+    <form method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+        {% csrf_token %}
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Login</h4>
-            <input type="text" class="form-control flex-grow-1" placeholder="Enter login">
+            {{ form.username }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Email</h4>
-            <input type="text" class="form-control flex-grow-1" placeholder="Enter email">
+            {{ form.email }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Nickname</h4>
-            <input type="text" class="form-control flex-grow-1" placeholder="Enter nickname">
+            {{ form.nickname }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Password</h4>
-            <input type="password" class="form-control flex-grow-1" placeholder="Enter password">
+            {{ form.password1 }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Repeat Password</h4>
-            <input type="password" class="form-control flex-grow-1" placeholder="Repeat password">
+            {{ form.password2 }}
         </div>
 
         <div class="d-flex align-items-center gap-4">
             <h4 class="w-50 mb-0">Upload Avatar</h4>
-            <input class="form-control" type="file" id="formFile">
+            {{ form.avatar }}
         </div>
         
         <div class="d-flex gap-4">
@@ -51,5 +59,4 @@
         </div>
     </form>
 </section>
-
 {% endblock %}
