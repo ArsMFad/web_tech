@@ -6,6 +6,8 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from . import models
 from .forms import LoginForm, SignUpForm, AskForm, AnswerForm, SettingsForm
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 
 def paginate(objects_list, request, per_page=5):
@@ -182,3 +184,50 @@ def page_not_found_view(request, exception):
         'popular_tags': models.Tag.get_popular_tags(),
         'best_members': models.Profile.get_best_members(),
     })
+
+
+@require_POST
+@login_required
+def vote_question(request, question_id):
+    question = models.Question.objects.get(pk=question_id)
+    vote_type = request.POST.get('vote_type')
+    
+    if vote_type == 'up':
+        question.rating += 1
+    elif vote_type == 'down':
+        question.rating -= 1
+    
+    question.save()
+    return JsonResponse({'new_rating': question.rating})
+
+
+@require_POST
+@login_required
+def mark_correct_answer(request, question_id):
+    answer_id = request.POST.get('answer_id')
+    answer = models.Answer.objects.get(pk=answer_id)
+    
+    if answer.question.author != request.user:
+        return JsonResponse({'error': 'Only question author can mark correct answer'}, status=403)
+    
+    models.Answer.objects.filter(question=answer.question).update(is_correct=False)
+    
+    answer.is_correct = True
+    answer.save()
+    
+    return JsonResponse({'success': True})
+
+
+@require_POST
+@login_required
+def vote_answer(request, answer_id):
+    answer = models.Answer.objects.get(pk=answer_id)
+    vote_type = request.POST.get('vote_type')
+    
+    if vote_type == 'up':
+        answer.rating += 1
+    elif vote_type == 'down':
+        answer.rating -= 1
+    
+    answer.save()
+    return JsonResponse({'new_rating': answer.rating})

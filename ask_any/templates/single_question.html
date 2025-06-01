@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block content %}
+    <!-- Подключаем наш JS -->
+    <script src="{% static 'js/ajax.js' %}"></script>
+    
     <div class="d-flex align-items-center gap-2 mb-3">
         <h1><a href="{% url 'question' question.id %}" class="text-decoration-none" style="color: black;">{{ question.title }}</a></h1>
     </div>
@@ -12,7 +15,43 @@
 
     <hr>
     <article class="d-flex gap-3 flex-column">
-        {% include 'layouts/answers.html' %}
+        {% for answer in answers %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-2">
+                            <div style="height: 100px;" class="d-flex border mb-2 w-100 justify-content-center">
+                                <img src="{{ answer.author.profile.avatar_url }}" alt="Avatar" class="img-fluid rounded-start object-fit-contain h-100 w-auto">
+                            </div>
+                            <div class="d-flex flex-column align-items-center">
+                                <button class="btn btn-sm btn-outline-success vote-answer-btn" 
+                                        data-answer-id="{{ answer.id }}" 
+                                        data-vote-type="up">↑</button>
+                                <p id="answer-rating-{{ answer.id }}" class="text-center my-1" style="width: 60px;">
+                                    {{ answer.rating }}
+                                </p>
+                                <button class="btn btn-sm btn-outline-danger vote-answer-btn" 
+                                        data-answer-id="{{ answer.id }}" 
+                                        data-vote-type="down">↓</button>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="card-text">{{ answer.text }}</p>
+                            {% if answer.is_correct %}
+                                <span class="badge bg-success">Correct answer</span>
+                            {% endif %}
+                            {% if question.author == request.user and not answer.is_correct %}
+                                <button class="btn btn-sm btn-outline-primary mark-correct-btn"
+                                        data-answer-id="{{ answer.id }}"
+                                        data-question-id="{{ question.id }}">
+                                    Mark as correct
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
     </article>
     <hr>
 

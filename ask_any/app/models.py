@@ -85,3 +85,10 @@ class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.PROTECT)
     rating = models.IntegerField(default=1)
     is_correct = models.BooleanField(default=False)
+    voters = models.ManyToManyField(User, through='AnswerVote', related_name='voted_answers')
+
+class AnswerVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    vote = models.SmallIntegerField()
+    

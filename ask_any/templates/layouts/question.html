@@ -9,8 +9,16 @@
                 <div style="height: 100px;" class="d-flex border mb-2 w-100 justify-content-center">
                     <img src="{{ question.author.profile.avatar_url }}" alt="Avatar" class="img-fluid rounded-start object-fit-contain h-100 w-auto">
                 </div>
-                <div>
-                    <input type="number" class="form-control" value="{{ question.rating }}">
+                <div class="d-flex flex-column align-items-center">
+                    <button class="btn btn-sm btn-outline-success vote-btn" 
+                            data-question-id="{{ question.id }}" 
+                            data-vote-type="up">↑</button>
+                    <p id="question-rating-{{ question.id }}" class="text-center my-1" style="width: 60px;">
+                        {{ question.rating }}
+                    </p>
+                    <button class="btn btn-sm btn-outline-danger vote-btn" 
+                            data-question-id="{{ question.id }}" 
+                            data-vote-type="down">↓</button>
                 </div>
             </div>
             <div class="col d-flex flex-column justify-content-between">
